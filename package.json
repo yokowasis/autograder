@@ -1,13 +1,17 @@
 {
-  "name": "autograder",
-  "version": "1.0.0",
+  "name": "exam-autograder",
+  "version": "1.0.1",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build" : "tsc",
-    "prepublishOnly" : "npm run build"
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yokowasis/autograder"
   },
   "keywords": [],
   "author": "",
