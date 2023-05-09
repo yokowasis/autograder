@@ -16,7 +16,7 @@ function hitungnilai(jawaban, kunci, bobot) {
                     let jawabansoal = jawaban[no];
                     let bobotsoal = bobot[no];
                     let bonus = false;
-                    if (kuncijawaban === "X") {
+                    if (kuncijawaban.toLowerCase() === "x") {
                         bonus = true;
                     }
                     if (bonus) {
@@ -59,22 +59,3 @@ function hitungnilai(jawaban, kunci, bobot) {
     };
 }
 exports.hitungnilai = hitungnilai;
-console.log(hitungnilai({
-    1: "Lionel Messi",
-    2: "2",
-    3: "A, C",
-    4: "X",
-    5: "6",
-}, {
-    1: "Lionel Messi",
-    2: "3",
-    3: "A, B, C",
-    4: "X",
-    5: "6",
-}, {
-    1: 3,
-    2: 3,
-    3: 3,
-    4: 3,
-    5: 3,
-}));
