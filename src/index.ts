@@ -44,42 +44,52 @@ function hitungnilai(
             bonus = true;
           }
 
+          let d = 0;
+
           if (bonus) {
             benar++;
             skor += bobotsoal;
+            d = 1;
           } else if (kuncijawaban === jawabansoal) {
             // Check Kunci PG
             benar++;
             skor += bobotsoal;
+            d = 2;
           } else if (kunciAsNumber !== 0 && kunciAsNumber === jawabanAsNumber) {
             benar++;
             skor += bobotsoal;
-          } else if (kuncijawaban === "CHECK") {
+            d = 3;
+          } else if (kuncijawaban === "check") {
             salah++;
-          } else if (jawabansoal === "" && kuncijawaban === "-CHECK") {
+            d = 4;
+          } else if (jawabansoal === "" && kuncijawaban === "-check") {
             benar++;
             skor += bobotsoal;
+            d = 5;
           } else {
             const essayScore = calculateScore(kuncijawaban, jawabansoal);
             benar += essayScore;
             skor += essayScore * bobotsoal;
             salah += 1 - essayScore;
+            d = 6;
           }
-          // console.log({
-          //   no,
-          //   benar,
-          //   salah,
-          //   bobotsoal,
-          //   kuncijawaban,
-          //   jawabansoal,
-          //   extract: extractNumber(
-          //     jawabansoal.replace(",", ".").replace(" ", "")
-          //   ),
-          //   extractKunci: extractNumber(
-          //     kuncijawaban.replace(",", ".").replace(" ", "")
-          //   ),
-          //   skor,
-          // });
+          // if (no === "25003P")
+          //   console.log({
+          //     no,
+          //     benar,
+          //     salah,
+          //     bobotsoal,
+          //     kuncijawaban,
+          //     jawabansoal,
+          //     extract: extractNumber(
+          //       jawabansoal.replace(",", ".").replace(" ", "")
+          //     ),
+          //     extractKunci: extractNumber(
+          //       kuncijawaban.replace(",", ".").replace(" ", "")
+          //     ),
+          //     skor,
+          //     d,
+          //   });
         }
       }
     }
