@@ -1,7 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.hitungnilai = void 0;
+exports.extractNumber = exports.hitungnilai = exports.calculateScore = void 0;
 const uraian_1 = require("./uraian");
+Object.defineProperty(exports, "calculateScore", { enumerable: true, get: function () { return uraian_1.calculateScore; } });
+Object.defineProperty(exports, "extractNumber", { enumerable: true, get: function () { return uraian_1.extractNumber; } });
 function hitungnilai(jawaban, kunci, bobot) {
     let benar = 0;
     let salah = 0;

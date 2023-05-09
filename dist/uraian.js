@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.calculateScore = void 0;
+exports.calculateScore = exports.extractNumber = void 0;
 function extractNumber(str) {
     const regex = /-?(\d+\.\d+)|(-?\d+)/; // Regular expression to find number or float with optional -
     const match = str.match(regex);
@@ -11,6 +11,7 @@ function extractNumber(str) {
         return 0;
     }
 }
+exports.extractNumber = extractNumber;
 function calculateScore(keywords, answer) {
     const keywordArray0 = keywords.split("|");
     let highestScore = 0;

@@ -1,3 +1,4 @@
+import { calculateScore, extractNumber } from "./uraian";
 type TypeOfJawaban = {
     [no: number]: string;
 };
@@ -7,9 +8,9 @@ type TypeOfKunci = {
 type TypeOfBobot = {
     [no: number]: number;
 };
-export declare function hitungnilai(jawaban: TypeOfJawaban, kunci: TypeOfKunci, bobot: TypeOfBobot): {
+declare function hitungnilai(jawaban: TypeOfJawaban, kunci: TypeOfKunci, bobot: TypeOfBobot): {
     nilai: string;
     benar: string;
     salah: string;
 };
-export {};
+export { calculateScore, hitungnilai, extractNumber };

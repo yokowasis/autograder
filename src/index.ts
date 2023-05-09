@@ -1,4 +1,4 @@
-import { calculateScore } from "./uraian";
+import { calculateScore, extractNumber } from "./uraian";
 
 type TypeOfJawaban = {
   [no: number]: string;
@@ -12,7 +12,7 @@ type TypeOfBobot = {
   [no: number]: number;
 };
 
-export function hitungnilai(
+function hitungnilai(
   jawaban: TypeOfJawaban,
   kunci: TypeOfKunci,
   bobot: TypeOfBobot
@@ -96,3 +96,5 @@ console.log(
     }
   )
 );
+
+export { calculateScore, hitungnilai, extractNumber };

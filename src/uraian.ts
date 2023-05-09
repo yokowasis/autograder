@@ -1,4 +1,4 @@
-function extractNumber(str: string) {
+export function extractNumber(str: string) {
   const regex = /-?(\d+\.\d+)|(-?\d+)/; // Regular expression to find number or float with optional -
   const match = str.match(regex);
   if (match !== null) {
