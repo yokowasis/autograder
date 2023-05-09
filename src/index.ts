@@ -71,30 +71,4 @@ function hitungnilai(
   };
 }
 
-console.log(
-  hitungnilai(
-    {
-      1: "Lionel Messi",
-      2: "2",
-      3: "A, C",
-      4: "X",
-      5: "6",
-    },
-    {
-      1: "Lionel Messi",
-      2: "3",
-      3: "A, B, C",
-      4: "X",
-      5: "6",
-    },
-    {
-      1: 3,
-      2: 3,
-      3: 3,
-      4: 3,
-      5: 3,
-    }
-  )
-);
-
 export { calculateScore, hitungnilai, extractNumber };
