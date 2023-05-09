@@ -65,21 +65,21 @@ function hitungnilai(
             skor += essayScore * bobotsoal;
             salah += 1 - essayScore;
           }
-          console.log({
-            no,
-            benar,
-            salah,
-            bobotsoal,
-            kuncijawaban,
-            jawabansoal,
-            extract: extractNumber(
-              jawabansoal.replace(",", ".").replace(" ", "")
-            ),
-            extractKunci: extractNumber(
-              kuncijawaban.replace(",", ".").replace(" ", "")
-            ),
-            skor,
-          });
+          // console.log({
+          //   no,
+          //   benar,
+          //   salah,
+          //   bobotsoal,
+          //   kuncijawaban,
+          //   jawabansoal,
+          //   extract: extractNumber(
+          //     jawabansoal.replace(",", ".").replace(" ", "")
+          //   ),
+          //   extractKunci: extractNumber(
+          //     kuncijawaban.replace(",", ".").replace(" ", "")
+          //   ),
+          //   skor,
+          // });
         }
       }
     }
@@ -92,6 +92,6 @@ function hitungnilai(
   };
 }
 
-console.log(hitungnilai(sampleData.answer, sampleData.keys, sampleData.bobot));
+// console.log(hitungnilai(sampleData.answer, sampleData.keys, sampleData.bobot));
 
 export { calculateScore, hitungnilai, extractNumber };

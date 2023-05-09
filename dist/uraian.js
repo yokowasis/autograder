@@ -22,18 +22,12 @@ function calculateScore(keywords, answer) {
         let matchedCount = 0;
         // Loop through each keyword and check if it exists in the answer
         keywordArray.forEach((keyword) => {
-            const ans = answer.toLowerCase().replace(",", ".");
-            const key = keyword.toLowerCase().trim();
+            const ans = answer.replace(",", ".");
+            const key = keyword.trim();
             const keyAsFloat = parseFloat(key);
+            // only check if the keyword is not a number
             if (isNaN(keyAsFloat)) {
                 if (ans.includes(key)) {
-                    matchedCount++;
-                }
-            }
-            else {
-                if (extractNumber(ans) === keyAsFloat) {
-                    console.log(extractNumber(ans));
-                    console.log(keyAsFloat);
                     matchedCount++;
                 }
             }
