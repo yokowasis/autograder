@@ -30,7 +30,7 @@ function hitungnilai(
           let bobotsoal = bobot[no];
           let bonus = false;
 
-          if (kuncijawaban === "X") {
+          if (kuncijawaban.toLowerCase() === "x") {
             bonus = true;
           }
 
