@@ -62,7 +62,7 @@ function hitungnilai(
           } else if (kuncijawaban === "check") {
             salah++;
             d = 4;
-          } else if (jawabansoal === "" && kuncijawaban === "-check") {
+          } else if (kuncijawaban === "-check" && jawabansoal !== "check") {
             benar++;
             skor += bobotsoal;
             d = 5;
