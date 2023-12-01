@@ -73,32 +73,15 @@ function hitungnilai(
             salah += 1 - essayScore;
             d = 6;
           }
-          // if (no === "25003P")
-          //   console.log({
-          //     no,
-          //     benar,
-          //     salah,
-          //     bobotsoal,
-          //     kuncijawaban,
-          //     jawabansoal,
-          //     extract: extractNumber(
-          //       jawabansoal.replace(",", ".").replace(" ", "")
-          //     ),
-          //     extractKunci: extractNumber(
-          //       kuncijawaban.replace(",", ".").replace(" ", "")
-          //     ),
-          //     skor,
-          //     d,
-          //   });
         }
       }
     }
   }
 
   return {
-    nilai: skor.toFixed(2),
-    benar: benar.toFixed(2),
-    salah: salah.toFixed(2),
+    nilai: skor?.toFixed(2) || "0",
+    benar: benar?.toFixed(2) || "0",
+    salah: salah?.toFixed(2) || "0",
   };
 }
 
