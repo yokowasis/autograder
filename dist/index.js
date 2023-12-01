@@ -56,31 +56,14 @@ function hitungnilai(jawaban, kunci, bobot) {
                         salah += 1 - essayScore;
                         d = 6;
                     }
-                    // if (no === "25003P")
-                    //   console.log({
-                    //     no,
-                    //     benar,
-                    //     salah,
-                    //     bobotsoal,
-                    //     kuncijawaban,
-                    //     jawabansoal,
-                    //     extract: extractNumber(
-                    //       jawabansoal.replace(",", ".").replace(" ", "")
-                    //     ),
-                    //     extractKunci: extractNumber(
-                    //       kuncijawaban.replace(",", ".").replace(" ", "")
-                    //     ),
-                    //     skor,
-                    //     d,
-                    //   });
                 }
             }
         }
     }
     return {
-        nilai: skor.toFixed(2),
-        benar: benar.toFixed(2),
-        salah: salah.toFixed(2),
+        nilai: (skor === null || skor === void 0 ? void 0 : skor.toFixed(2)) || "0",
+        benar: (benar === null || benar === void 0 ? void 0 : benar.toFixed(2)) || "0",
+        salah: (salah === null || salah === void 0 ? void 0 : salah.toFixed(2)) || "0",
     };
 }
 exports.hitungnilai = hitungnilai;
