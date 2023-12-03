@@ -28,7 +28,7 @@ function hitungnilai(
         if (kunci[no]) {
           let kuncijawaban = kunci[no].toLowerCase().trim();
           let jawabansoal = jawaban[no]?.toLowerCase().trim() || "";
-          let bobotsoal = bobot[no];
+          let bobotsoal = parseFloat(bobot?.[no]?.toString() || "0");
           let bonus = false;
           const kunciAsNumber = extractNumber(
             jawabansoal.replace(",", ".").replace(" ", "")
