@@ -5,7 +5,7 @@ const uraian_1 = require("./uraian");
 Object.defineProperty(exports, "calculateScore", { enumerable: true, get: function () { return uraian_1.calculateScore; } });
 Object.defineProperty(exports, "extractNumber", { enumerable: true, get: function () { return uraian_1.extractNumber; } });
 function hitungnilai(jawaban, kunci, bobot) {
-    var _a;
+    var _a, _b;
     let benar = 0;
     let salah = 0;
     let skor = 0;
@@ -15,7 +15,7 @@ function hitungnilai(jawaban, kunci, bobot) {
                 if (kunci[no]) {
                     let kuncijawaban = kunci[no].toLowerCase().trim();
                     let jawabansoal = ((_a = jawaban[no]) === null || _a === void 0 ? void 0 : _a.toLowerCase().trim()) || "";
-                    let bobotsoal = bobot[no];
+                    let bobotsoal = parseFloat(((_b = bobot === null || bobot === void 0 ? void 0 : bobot[no]) === null || _b === void 0 ? void 0 : _b.toString()) || "0");
                     let bonus = false;
                     const kunciAsNumber = (0, uraian_1.extractNumber)(jawabansoal.replace(",", ".").replace(" ", ""));
                     const jawabanAsNumber = (0, uraian_1.extractNumber)(kuncijawaban.replace(",", ".").replace(" ", ""));
