@@ -6,7 +6,7 @@ type TypeOfKunci = {
     [no: number]: string;
 };
 type TypeOfBobot = {
-    [no: number]: number;
+    [no: number]: number | string;
 };
 declare function hitungnilai(jawaban: TypeOfJawaban, kunci: TypeOfKunci, bobot: TypeOfBobot): {
     nilai: string;
