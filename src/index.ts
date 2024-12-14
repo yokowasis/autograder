@@ -1,4 +1,3 @@
-import { sampleData } from "./data";
 import { calculateScore, extractNumber } from "./uraian";
 
 type TypeOfJawaban = {
@@ -28,9 +27,12 @@ function hitungnilai(
         if (kunci[no]) {
           let kuncijawaban = kunci[no].toLowerCase().trim();
           let jawabansoal = jawaban[no]?.toLowerCase().trim() || "";
-          let bobotsoal = parseFloat(
+          let bobotsoalString = (
             bobot?.[no]?.toString().replace(",", ".") || "0"
-          );
+          ).split(";");
+          let bobotBenar = parseFloat(bobotsoalString[0]);
+          let bobotSalah = parseFloat(bobotsoalString?.[1] || "0");
+
           let bonus = false;
           const kunciAsNumber = extractNumber(
             jawabansoal.replace(",", ".").replace(" ", "")
@@ -50,31 +52,58 @@ function hitungnilai(
 
           if (bonus) {
             benar++;
-            skor += bobotsoal;
+            skor += bobotBenar;
             d = 1;
-          } else if (kuncijawaban === jawabansoal) {
-            // Check Kunci PG
-            benar++;
-            skor += bobotsoal;
-            d = 2;
-          } else if (kunciAsNumber !== 0 && kunciAsNumber === jawabanAsNumber) {
-            benar++;
-            skor += bobotsoal;
-            d = 3;
-          } else if (kuncijawaban === "check") {
-            salah++;
-            d = 4;
-          } else if (kuncijawaban === "-check" && jawabansoal !== "check") {
-            benar++;
-            skor += bobotsoal;
-            d = 5;
-          } else {
-            const essayScore = calculateScore(kuncijawaban, jawabansoal);
-            benar += essayScore;
-            skor += essayScore * bobotsoal;
-            salah += 1 - essayScore;
-            d = 6;
+            continue;
           }
+
+          if (kuncijawaban === "check" || kuncijawaban === "-check") {
+            // pilgan kompleks
+            if (kuncijawaban === "-check" && jawabansoal !== "check") {
+              benar++;
+              skor += bobotBenar;
+              d = 1;
+            } else if (kuncijawaban === jawabansoal) {
+              benar++;
+              skor += bobotBenar;
+              d = 2;
+            } else {
+              salah++;
+              skor += bobotSalah;
+              d = 3;
+            }
+
+            continue;
+          }
+
+          // pilihan ganda, benar salah, penjodohan
+          if (/^[a-zA-Z]$/.test(kuncijawaban)) {
+            if (kuncijawaban === jawabansoal) {
+              benar++;
+              skor += bobotBenar;
+              d = 2;
+            } else {
+              salah++;
+              skor += bobotSalah;
+              d = 3;
+            }
+            continue;
+          }
+
+          // uraian matematika bilangan bulat
+          if (kunciAsNumber !== 0 && kunciAsNumber === jawabanAsNumber) {
+            benar++;
+            skor += bobotBenar;
+            d = 4;
+            continue;
+          }
+
+          // uraian text biasa
+          const essayScore = calculateScore(kuncijawaban, jawabansoal);
+          benar += essayScore;
+          skor += essayScore * bobotBenar;
+          salah += 1 - essayScore;
+          d = 6;
         }
       }
     }
