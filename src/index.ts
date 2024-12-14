@@ -9,7 +9,7 @@ type TypeOfKunci = {
 };
 
 type TypeOfBobot = {
-  [no: number]: number;
+  [no: number]: number | string;
 };
 
 function hitungnilai(
