@@ -15,7 +15,7 @@ type TypeOfBobot = {
 function hitungnilai(
   jawaban: TypeOfJawaban,
   kunci: TypeOfKunci,
-  bobot: TypeOfBobot
+  bobot: TypeOfBobot,
 ) {
   let benar = 0;
   let salah = 0;
@@ -25,8 +25,13 @@ function hitungnilai(
     for (const no in kunci) {
       if (Object.hasOwnProperty.call(kunci, no)) {
         if (kunci[no]) {
-          let kuncijawaban = kunci[no].toLowerCase().trim();
           let jawabansoal = jawaban[no]?.toLowerCase().trim() || "";
+
+          if (!jawabansoal) {
+            continue;
+          }
+
+          let kuncijawaban = kunci[no].toLowerCase().trim();
           let bobotsoalString = (
             bobot?.[no]?.toString().replace(",", ".") || "0"
           ).split(";");
@@ -35,10 +40,10 @@ function hitungnilai(
 
           let bonus = false;
           const kunciAsNumber = extractNumber(
-            jawabansoal.replace(",", ".").replace(" ", "")
+            jawabansoal.replace(",", ".").replace(" ", ""),
           );
           const jawabanAsNumber = extractNumber(
-            kuncijawaban.replace(",", ".").replace(" ", "")
+            kuncijawaban.replace(",", ".").replace(" ", ""),
           );
 
           if (
