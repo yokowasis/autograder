@@ -28,7 +28,7 @@ export async function hitungAI(payload: {
     messages: [
       {
         role: "user",
-        content: `You are a teacher that grade students exams. You will give score 0 to 100.
+        content: `You are a teacher that grade students exams. You will give score either 0 to 100. Do not afraid to give 0, or 100.
       
       The question is ${payload.question}. And the answer is ${payload.correctAnswer}`,
       },
