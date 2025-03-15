@@ -9,36 +9,46 @@ export function extractNumber(str: string) {
 }
 
 export function calculateScore(keywords: string, answer: string): number {
+  // check if keywords has [AISCORE
+  if (keywords.indexOf("[AISCORE:") !== -1) {
+    // extract XX from [AISCORE:XX] using regex
+    const regex = /\[AISCORE:(\d+)\]/;
+    const match = keywords.match(regex);
+    let score = 0;
+    if (match !== null) {
+      score = Number.parseFloat(match[1]) / 100;
+    }
+    return score;
+  }
+
   const keywordArray0: string[] = keywords.split("|");
   let highestScore = 0;
 
-  keywordArray0.forEach((keywords: string) => {
-    // Split the keywords into an array
+  for (let i = 0; i < keywordArray0.length; i++) {
+    const keywords = keywordArray0[i];
     const keywordArray: string[] = keywords.split(",");
 
-    // Initialize a count variable for the number of matched keywords
     let matchedCount = 0;
 
-    // Loop through each keyword and check if it exists in the answer
-    keywordArray.forEach((keyword: string) => {
+    for (let j = 0; j < keywordArray.length; j++) {
+      const keyword = keywordArray[j];
       const ans = answer.replace(",", ".");
       const key = keyword.trim();
       const keyAsFloat = parseFloat(key);
 
-      // only check if the keyword is not a number
       if (isNaN(keyAsFloat)) {
         if (ans.includes(key)) {
           matchedCount++;
         }
       }
-    });
+    }
 
     const score = matchedCount / keywordArray.length;
 
     if (score > highestScore) {
       highestScore = score;
     }
-  });
+  }
 
   return highestScore;
 }
