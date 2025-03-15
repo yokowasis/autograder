@@ -1,4 +1,5 @@
 import { calculateScore, extractNumber } from "./uraian";
+import { hitungAI } from "./ai";
 
 type TypeOfJawaban = {
   [no: number]: string;
@@ -15,7 +16,7 @@ type TypeOfBobot = {
 function hitungnilai(
   jawaban: TypeOfJawaban,
   kunci: TypeOfKunci,
-  bobot: TypeOfBobot,
+  bobot: TypeOfBobot
 ) {
   let benar = 0;
   let salah = 0;
@@ -40,10 +41,10 @@ function hitungnilai(
 
           let bonus = false;
           const kunciAsNumber = extractNumber(
-            jawabansoal.replace(",", ".").replace(" ", ""),
+            jawabansoal.replace(",", ".").replace(" ", "")
           );
           const jawabanAsNumber = extractNumber(
-            kuncijawaban.replace(",", ".").replace(" ", ""),
+            kuncijawaban.replace(",", ".").replace(" ", "")
           );
 
           if (
@@ -123,4 +124,4 @@ function hitungnilai(
 
 // console.log(hitungnilai(sampleData.answer, sampleData.keys, sampleData.bobot));
 
-export { calculateScore, hitungnilai, extractNumber };
+export { calculateScore, hitungnilai, extractNumber, hitungAI };
