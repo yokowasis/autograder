@@ -1,10 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.calculateScore = exports.extractNumber = void 0;
-const dotenv_1 = require("dotenv");
-dotenv_1.default.config();
-// @ts-ignore
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 function extractNumber(str) {
     const regex = /-?(\d+\.\d+)|(-?\d+)/; // Regular expression to find number or float with optional -
     const match = str.match(regex);
@@ -27,10 +23,6 @@ function calculateScore(keywords, answer) {
             score = Number.parseFloat(match[1]) / 100;
         }
         return score;
-    }
-    // check if keywords has [AI]
-    if (keywords.indexOf("[AI]") !== -1) {
-        return 1;
     }
     const keywordArray0 = keywords.split("|");
     let highestScore = 0;
