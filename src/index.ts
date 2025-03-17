@@ -1,15 +1,15 @@
 import { calculateScore, extractNumber } from "./uraian";
 import { hitungAI } from "./ai";
 
-type TypeOfJawaban = {
+export type TypeOfJawaban = {
   [no: number]: string;
 };
 
-type TypeOfKunci = {
+export type TypeOfKunci = {
   [no: number]: string;
 };
 
-type TypeOfBobot = {
+export type TypeOfBobot = {
   [no: number]: number | string;
 };
 
@@ -27,12 +27,12 @@ function hitungnilai(
       if (Object.hasOwnProperty.call(kunci, no)) {
         if (kunci[no]) {
           let jawabansoal = jawaban[no]?.toLowerCase().trim() || "";
+          let kuncijawaban = kunci[no].toLowerCase().trim();
 
-          if (!jawabansoal) {
+          if (!jawabansoal && kuncijawaban !== "-check") {
             continue;
           }
 
-          let kuncijawaban = kunci[no].toLowerCase().trim();
           let bobotsoalString = (
             bobot?.[no]?.toString().replace(",", ".") || "0"
           ).split(";");

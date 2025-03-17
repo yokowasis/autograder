@@ -16,10 +16,10 @@ function hitungnilai(jawaban, kunci, bobot) {
             if (Object.hasOwnProperty.call(kunci, no)) {
                 if (kunci[no]) {
                     let jawabansoal = ((_a = jawaban[no]) === null || _a === void 0 ? void 0 : _a.toLowerCase().trim()) || "";
-                    if (!jawabansoal) {
+                    let kuncijawaban = kunci[no].toLowerCase().trim();
+                    if (!jawabansoal && kuncijawaban !== "-check") {
                         continue;
                     }
-                    let kuncijawaban = kunci[no].toLowerCase().trim();
                     let bobotsoalString = (((_b = bobot === null || bobot === void 0 ? void 0 : bobot[no]) === null || _b === void 0 ? void 0 : _b.toString().replace(",", ".")) || "0").split(";");
                     let bobotBenar = parseFloat(bobotsoalString[0]);
                     let bobotSalah = parseFloat((bobotsoalString === null || bobotsoalString === void 0 ? void 0 : bobotsoalString[1]) || "0");
