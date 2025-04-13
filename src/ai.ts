@@ -4,7 +4,7 @@ import { z } from "zod";
 import "dotenv/config";
 
 const client = new OpenAI({
-  apiKey: process.env.OPENAI_KEY,
+  apiKey: process?.env?.OPENAI_KEY || "",
 });
 
 const AnswerFormat = z.object({

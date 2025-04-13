@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.hitungAI = void 0;
 const openai_1 = require("openai");
@@ -15,7 +16,7 @@ const zod_1 = require("openai/helpers/zod");
 const zod_2 = require("zod");
 require("dotenv/config");
 const client = new openai_1.default({
-    apiKey: process.env.OPENAI_KEY,
+    apiKey: ((_a = process === null || process === void 0 ? void 0 : process.env) === null || _a === void 0 ? void 0 : _a.OPENAI_KEY) || "",
 });
 const AnswerFormat = zod_2.z.object({
     data: zod_2.z.array(zod_2.z.object({
