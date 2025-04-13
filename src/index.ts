@@ -1,5 +1,4 @@
 import { calculateScore, extractNumber } from "./uraian";
-import { hitungAI } from "./ai";
 
 export type TypeOfJawaban = {
   [no: number]: string;
@@ -124,4 +123,4 @@ function hitungnilai(
 
 // console.log(hitungnilai(sampleData.answer, sampleData.keys, sampleData.bobot));
 
-export { calculateScore, hitungnilai, extractNumber, hitungAI };
+export { calculateScore, hitungnilai, extractNumber };
