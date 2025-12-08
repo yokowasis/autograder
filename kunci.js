@@ -52,28 +52,31 @@ const kunciJawaban = /** @type {import("./types.js").TypeOfKunci} */ ({
 });
 
 const bobot = /** @type {import("./types.js").TypeOfBobot} */ ({
-  1: "5",   // String weight
-  2: 5,     // Number weight  
-  3: "5",   // String weight
-  4: 5,     // Number weight
-  5: "5",   // String weight
-  6: 3,     // Number weight
-  7: "3",   // String weight
-  8: 4,     // Number weight
-  9: "4",   // String weight
-  10: 4,    // Number weight
-  11: "2",  // String weight
-  12: 2,    // Number weight
-  13: "2",  // String weight
-  14: 4,    // Number weight
-  15: 2,    // Number weight
+  1: "5",        // Simple string weight
+  2: 5,          // Simple number weight  
+  3: "4;-1",     // Correct/Incorrect format: +4 if correct, -1 if wrong
+  4: "3;-2",     // Correct/Incorrect format: +3 if correct, -2 if wrong
+  5: "5",        // Simple string weight
+  6: "1;2;3;4;5", // Choice-based: A=1, B=2, C=3, D=4, E=5
+  7: "2;4;6;8;10", // Choice-based: A=2, B=4, C=6, D=8, E=10
+  8: 4,          // Simple number weight (for check question)
+  9: "5;-1",     // Correct/Incorrect format (for check question)
+  10: 4,         // Simple number weight (for check question)
+  11: "2",       // Simple string weight (for -check question)
+  12: 2,         // Simple number weight (for -check question)
+  13: "3;-1",    // Correct/Incorrect format (for -check question)
+  14: 4,         // Simple number weight (for check question)
+  15: 2,         // Simple number weight (for -check question)
 });
 
 /**
  * Calculate score based on answers, answer key, and weights
  * @param {import("./types.js").TypeOfJawaban} jawaban - Student answers
  * @param {import("./types.js").TypeOfKunci} kunci - Answer key
- * @param {import("./types.js").TypeOfBobot} bobot - Question weights (accepts both string and number values)
+ * @param {import("./types.js").TypeOfBobot} bobot - Question weights (supports multiple formats:
+ *   - Simple number/string: e.g. 3, "5"
+ *   - Correct/Incorrect: e.g. "4;-1" (+4 if correct, -1 if wrong)
+ *   - Choice-based: e.g. "1;2;3;4;5" (A=1, B=2, C=3, D=4, E=5, else=0))
  * @returns {{nilai: number, benar: number, salah: number}} Score result with total score, correct count, and incorrect count
  */
 function calculateScore(jawaban, kunci, bobot) {
@@ -84,11 +87,12 @@ function calculateScore(jawaban, kunci, bobot) {
   for (const questionNum in kunci) {
     const studentAnswer = jawaban[questionNum];
     const correctAnswer = kunci[questionNum];
-    const weight = typeof bobot[questionNum] === 'string' ? parseInt(bobot[questionNum]) : bobot[questionNum];
+    const weightValue = bobot[questionNum];
 
     let isCorrect = false;
+    let scoreToAdd = 0;
 
-    // Handle check/uncheck questions
+    // Handle check/uncheck questions for correctness determination
     if (correctAnswer === "check" || correctAnswer === "-check") {
       if (correctAnswer === "check") {
         // For "check" key: only "check" answer is correct
@@ -102,8 +106,38 @@ function calculateScore(jawaban, kunci, bobot) {
       isCorrect = studentAnswer === correctAnswer;
     }
 
+    // Handle different weight formats
+    if (typeof weightValue === 'string' && weightValue.includes(';')) {
+      const parts = weightValue.split(';');
+      
+      if (parts.length === 2) {
+        // Format: "4;-1" (correct;incorrect)
+        const correctScore = parseInt(parts[0]);
+        const incorrectScore = parseInt(parts[1]);
+        scoreToAdd = isCorrect ? correctScore : incorrectScore;
+      } else if (parts.length === 5) {
+        // Format: "1;2;3;4;5" (A=1, B=2, C=3, D=4, E=5)
+        const choiceScores = {
+          'A': parseInt(parts[0]),
+          'B': parseInt(parts[1]), 
+          'C': parseInt(parts[2]),
+          'D': parseInt(parts[3]),
+          'E': parseInt(parts[4])
+        };
+        scoreToAdd = choiceScores[studentAnswer] || 0;
+        // For choice-based scoring, we don't count correct/incorrect traditionally
+        // but we can consider it "correct" if they got a positive score
+        isCorrect = scoreToAdd > 0;
+      }
+    } else {
+      // Simple weight format (number or string number)
+      const simpleWeight = typeof weightValue === 'string' ? parseInt(weightValue) : weightValue;
+      scoreToAdd = isCorrect ? simpleWeight : 0;
+    }
+
+    totalScore += scoreToAdd;
+    
     if (isCorrect) {
-      totalScore += weight;
       correctCount++;
     } else {
       incorrectCount++;
@@ -158,12 +192,13 @@ console.log("\n=== Detailed Question Analysis ===");
 for (const questionNum in kunciJawaban) {
   const studentAnswer = sampleData[questionNum];
   const correctAnswer = kunciJawaban[questionNum];
-  const weight = typeof bobot[questionNum] === 'string' ? parseInt(bobot[questionNum]) : bobot[questionNum];
+  const weightValue = bobot[questionNum];
 
   let isCorrect = false;
+  let scoreEarned = 0;
   let explanation = "";
 
-  // Determine if answer is correct and provide explanation
+  // Determine correctness first
   if (correctAnswer === "check" || correctAnswer === "-check") {
     if (correctAnswer === "check") {
       isCorrect = studentAnswer === "check";
@@ -177,7 +212,240 @@ for (const questionNum in kunciJawaban) {
     explanation = `Multiple choice: need "${correctAnswer}", got "${studentAnswer}"`;
   }
 
+  // Calculate score based on weight format
+  if (typeof weightValue === 'string' && weightValue.includes(';')) {
+    const parts = weightValue.split(';');
+    
+    if (parts.length === 2) {
+      // Correct/Incorrect format
+      const correctScore = parseInt(parts[0]);
+      const incorrectScore = parseInt(parts[1]);
+      scoreEarned = isCorrect ? correctScore : incorrectScore;
+      explanation += ` | Score: ${scoreEarned} (${correctScore};${incorrectScore})`;
+    } else if (parts.length === 5) {
+      // Choice-based format
+      const choiceScores = {
+        'A': parseInt(parts[0]),
+        'B': parseInt(parts[1]), 
+        'C': parseInt(parts[2]),
+        'D': parseInt(parts[3]),
+        'E': parseInt(parts[4])
+      };
+      scoreEarned = choiceScores[studentAnswer] || 0;
+      explanation = `Choice-based: got "${studentAnswer}" = ${scoreEarned} points (A=${parts[0]},B=${parts[1]},C=${parts[2]},D=${parts[3]},E=${parts[4]})`;
+      isCorrect = scoreEarned > 0; // Consider positive score as "correct"
+    }
+  } else {
+    // Simple weight
+    const simpleWeight = typeof weightValue === 'string' ? parseInt(weightValue) : weightValue;
+    scoreEarned = isCorrect ? simpleWeight : 0;
+    explanation += ` | Score: ${scoreEarned} (Weight: ${simpleWeight})`;
+  }
+
   console.log(
-    `Q${questionNum}: ${isCorrect ? "✓" : "✗"} ${explanation} (Weight: ${weight})`,
+    `Q${questionNum}: ${isCorrect ? "✓" : "✗"} ${explanation}`,
   );
 }
+
+// Comprehensive test for all weight formats
+console.log("\n=== Comprehensive Weight Format Test ===");
+
+const comprehensiveAnswers = /** @type {import("./types.js").TypeOfJawaban} */ ({
+  // Simple weight tests
+  1: "A",     // Correct - simple string weight
+  2: "B",     // Correct - simple number weight
+  3: "X",     // Wrong - simple weight
+  
+  // Correct/Incorrect weight tests  
+  4: "A",     // Correct - should get +5
+  5: "X",     // Wrong - should get -2
+  6: "check", // Correct check - should get +3
+  7: "-check", // Wrong check (key is "check") - should get -1
+  
+  // Choice-based weight tests
+  8: "A",     // Should get 1 point
+  9: "B",     // Should get 2 points  
+  10: "C",    // Should get 3 points
+  11: "D",    // Should get 4 points
+  12: "E",    // Should get 5 points
+  13: "X",    // Should get 0 points (invalid choice)
+  14: "",     // Should get 0 points (empty choice)
+  
+  // Advanced choice-based with custom values
+  15: "A",    // Should get 10 points
+  16: "C",    // Should get 30 points
+  17: "F",    // Should get 0 points (invalid)
+  
+  // Mixed scenarios with check/uncheck
+  18: "check",  // Correct check with choice-based (treat as correct)
+  19: "",       // Correct uncheck with correct/incorrect format
+  20: "check",  // Wrong uncheck with choice-based (treat based on choice)
+});
+
+const comprehensiveKeys = /** @type {import("./types.js").TypeOfKunci} */ ({
+  1: "A",     // Simple weight
+  2: "B",     // Simple weight
+  3: "A",     // Simple weight
+  4: "A",     // Correct/Incorrect
+  5: "A",     // Correct/Incorrect  
+  6: "check", // Check with Correct/Incorrect
+  7: "check", // Check with Correct/Incorrect
+  8: "X",     // Choice-based (key doesn't matter)
+  9: "X",     // Choice-based
+  10: "X",    // Choice-based
+  11: "X",    // Choice-based
+  12: "X",    // Choice-based
+  13: "X",    // Choice-based
+  14: "X",    // Choice-based
+  15: "X",    // Choice-based custom
+  16: "X",    // Choice-based custom
+  17: "X",    // Choice-based custom
+  18: "check", // Check with choice-based
+  19: "-check", // Uncheck with correct/incorrect
+  20: "-check", // Uncheck with choice-based
+});
+
+const comprehensiveWeights = /** @type {import("./types.js").TypeOfBobot} */ ({
+  1: "3",           // Simple string weight
+  2: 4,             // Simple number weight
+  3: 5,             // Simple number weight
+  4: "5;-2",        // Correct/Incorrect: +5/-2
+  5: "5;-2",        // Correct/Incorrect: +5/-2
+  6: "3;-1",        // Check with Correct/Incorrect: +3/-1
+  7: "3;-1",        // Check with Correct/Incorrect: +3/-1
+  8: "1;2;3;4;5",   // Choice-based: A=1,B=2,C=3,D=4,E=5
+  9: "1;2;3;4;5",   // Choice-based
+  10: "1;2;3;4;5",  // Choice-based
+  11: "1;2;3;4;5",  // Choice-based
+  12: "1;2;3;4;5",  // Choice-based
+  13: "1;2;3;4;5",  // Choice-based
+  14: "1;2;3;4;5",  // Choice-based
+  15: "10;20;30;40;50", // Custom choice-based
+  16: "10;20;30;40;50", // Custom choice-based
+  17: "10;20;30;40;50", // Custom choice-based
+  18: "1;2;3;4;5",  // Check with choice-based (should work as choice)
+  19: "4;-1",       // Uncheck with correct/incorrect
+  20: "1;2;3;4;5",  // Uncheck with choice-based
+});
+
+const comprehensiveResult = calculateScore(comprehensiveAnswers, comprehensiveKeys, comprehensiveWeights);
+console.log("Comprehensive test result:", comprehensiveResult);
+
+// Manual calculation verification
+console.log("\n=== Manual Verification ===");
+let expectedScore = 0;
+let expectedCorrect = 0;
+let expectedIncorrect = 0;
+
+// Q1: A=A, weight=3 → +3, correct
+expectedScore += 3; expectedCorrect++;
+console.log("Q1: A=A, simple weight 3 → +3");
+
+// Q2: B=B, weight=4 → +4, correct  
+expectedScore += 4; expectedCorrect++;
+console.log("Q2: B=B, simple weight 4 → +4");
+
+// Q3: X≠A, weight=5 → 0, incorrect
+expectedScore += 0; expectedIncorrect++; 
+console.log("Q3: X≠A, simple weight 5 → 0");
+
+// Q4: A=A, correct/incorrect 5;-2 → +5, correct
+expectedScore += 5; expectedCorrect++;
+console.log("Q4: A=A, correct/incorrect 5;-2 → +5");
+
+// Q5: X≠A, correct/incorrect 5;-2 → -2, incorrect
+expectedScore += -2; expectedIncorrect++;
+console.log("Q5: X≠A, correct/incorrect 5;-2 → -2");
+
+// Q6: check=check, correct/incorrect 3;-1 → +3, correct
+expectedScore += 3; expectedCorrect++;
+console.log("Q6: check=check, correct/incorrect 3;-1 → +3");
+
+// Q7: -check≠check, correct/incorrect 3;-1 → -1, incorrect
+expectedScore += -1; expectedIncorrect++;
+console.log("Q7: -check≠check, correct/incorrect 3;-1 → -1");
+
+// Q8-12: Choice-based A=1, B=2, C=3, D=4, E=5
+expectedScore += 1; expectedCorrect++; // A=1
+expectedScore += 2; expectedCorrect++; // B=2  
+expectedScore += 3; expectedCorrect++; // C=3
+expectedScore += 4; expectedCorrect++; // D=4
+expectedScore += 5; expectedCorrect++; // E=5
+console.log("Q8-12: Choice-based A=1,B=2,C=3,D=4,E=5 → +1,+2,+3,+4,+5");
+
+// Q13: X=0, choice-based → 0, incorrect
+expectedScore += 0; expectedIncorrect++;
+console.log("Q13: X not in A-E, choice-based → 0");
+
+// Q14: ""=0, choice-based → 0, incorrect  
+expectedScore += 0; expectedIncorrect++;
+console.log("Q14: empty not in A-E, choice-based → 0");
+
+// Q15: A=10, custom choice-based → +10, correct
+expectedScore += 10; expectedCorrect++;
+console.log("Q15: A=10, custom choice-based → +10");
+
+// Q16: C=30, custom choice-based → +30, correct
+expectedScore += 30; expectedCorrect++;
+console.log("Q16: C=30, custom choice-based → +30");
+
+// Q17: F=0, custom choice-based → 0, incorrect
+expectedScore += 0; expectedIncorrect++;
+console.log("Q17: F not in A-E, custom choice-based → 0");
+
+// Q18: check with choice-based A=1,B=2,C=3,D=4,E=5 → 0 (check not in A-E), incorrect
+expectedScore += 0; expectedIncorrect++;
+console.log("Q18: 'check' not in A-E, choice-based → 0");
+
+// Q19: ""=-check (uncheck), correct/incorrect 4;-1 → +4, correct
+expectedScore += 4; expectedCorrect++;
+console.log("Q19: empty=-check (uncheck), correct/incorrect 4;-1 → +4");
+
+// Q20: check≠-check (uncheck), choice-based → 0 (check not in A-E), incorrect  
+expectedScore += 0; expectedIncorrect++;
+console.log("Q20: 'check' not in A-E, choice-based → 0");
+
+console.log(`\nExpected: nilai=${expectedScore}, benar=${expectedCorrect}, salah=${expectedIncorrect}`);
+console.log(`Actual:   nilai=${comprehensiveResult.nilai}, benar=${comprehensiveResult.benar}, salah=${comprehensiveResult.salah}`);
+console.log(`Match: ${expectedScore === comprehensiveResult.nilai && expectedCorrect === comprehensiveResult.benar && expectedIncorrect === comprehensiveResult.salah ? '✅ PASS' : '❌ FAIL'}`);
+
+// Detailed breakdown table
+console.log("\n=== Test Results Summary Table ===");
+console.log("Q# | Answer | Key    | Weight Format    | Score | Status | Description");
+console.log("---|--------|--------|------------------|-------|--------|----------------------------------");
+
+const testCases = [
+  {q: 1, ans: "A", key: "A", weight: "3", score: 3, status: "✓", desc: "Simple string weight"},
+  {q: 2, ans: "B", key: "B", weight: 4, score: 4, status: "✓", desc: "Simple number weight"},
+  {q: 3, ans: "X", key: "A", weight: 5, score: 0, status: "✗", desc: "Simple weight, wrong answer"},
+  {q: 4, ans: "A", key: "A", weight: "5;-2", score: 5, status: "✓", desc: "Correct/incorrect format, correct"},
+  {q: 5, ans: "X", key: "A", weight: "5;-2", score: -2, status: "✗", desc: "Correct/incorrect format, wrong"},
+  {q: 6, ans: "check", key: "check", weight: "3;-1", score: 3, status: "✓", desc: "Check question, correct/incorrect"},
+  {q: 7, ans: "-check", key: "check", weight: "3;-1", score: -1, status: "✗", desc: "Check question, wrong answer"},
+  {q: 8, ans: "A", key: "X", weight: "1;2;3;4;5", score: 1, status: "✓", desc: "Choice-based A=1"},
+  {q: 9, ans: "B", key: "X", weight: "1;2;3;4;5", score: 2, status: "✓", desc: "Choice-based B=2"},
+  {q: 10, ans: "C", key: "X", weight: "1;2;3;4;5", score: 3, status: "✓", desc: "Choice-based C=3"},
+  {q: 11, ans: "D", key: "X", weight: "1;2;3;4;5", score: 4, status: "✓", desc: "Choice-based D=4"},
+  {q: 12, ans: "E", key: "X", weight: "1;2;3;4;5", score: 5, status: "✓", desc: "Choice-based E=5"},
+  {q: 13, ans: "X", key: "X", weight: "1;2;3;4;5", score: 0, status: "✗", desc: "Choice-based invalid choice"},
+  {q: 14, ans: "", key: "X", weight: "1;2;3;4;5", score: 0, status: "✗", desc: "Choice-based empty answer"},
+  {q: 15, ans: "A", key: "X", weight: "10;20;30;40;50", score: 10, status: "✓", desc: "Custom choice-based A=10"},
+  {q: 16, ans: "C", key: "X", weight: "10;20;30;40;50", score: 30, status: "✓", desc: "Custom choice-based C=30"},
+  {q: 17, ans: "F", key: "X", weight: "10;20;30;40;50", score: 0, status: "✗", desc: "Custom choice-based invalid"},
+  {q: 18, ans: "check", key: "check", weight: "1;2;3;4;5", score: 0, status: "✗", desc: "Check + choice-based (check not A-E)"},
+  {q: 19, ans: "", key: "-check", weight: "4;-1", score: 4, status: "✓", desc: "Uncheck + correct/incorrect"},
+  {q: 20, ans: "check", key: "-check", weight: "1;2;3;4;5", score: 0, status: "✗", desc: "Uncheck + choice-based"}
+];
+
+testCases.forEach(tc => {
+  const paddedQ = tc.q.toString().padStart(2);
+  const paddedAns = tc.ans.toString().padEnd(6);
+  const paddedKey = tc.key.toString().padEnd(6);
+  const paddedWeight = tc.weight.toString().padEnd(16);
+  const paddedScore = tc.score.toString().padStart(5);
+  console.log(`${paddedQ} | ${paddedAns} | ${paddedKey} | ${paddedWeight} | ${paddedScore} | ${tc.status}      | ${tc.desc}`);
+});
+
+console.log(`\nTOTAL SCORE: ${testCases.reduce((sum, tc) => sum + tc.score, 0)} points`);
+console.log(`CORRECT: ${testCases.filter(tc => tc.status === "✓").length} questions`);
+console.log(`INCORRECT: ${testCases.filter(tc => tc.status === "✗").length} questions`);
