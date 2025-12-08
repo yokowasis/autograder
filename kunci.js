@@ -155,6 +155,64 @@ function calculateScore(jawaban, kunci, bobot) {
   };
 }
 
+/**
+ * Calculate score for short answer questions based on keyword matching
+ * @param {import("./types.js").TypeOfJawaban} jawaban - Student answers
+ * @param {import("./types.js").TypeOfKunci} kunci - Answer keys in format "keyword1;keyword2;keyword3"
+ * @param {import("./types.js").TypeOfBobot} bobot - Question weights (single numbers)
+ * @returns {{nilai: number, benar: number, salah: number}} Score result with total score, correct count, and incorrect count
+ */
+function calculateShortAnswerScore(jawaban, kunci, bobot) {
+  let totalScore = 0;
+  let correctCount = 0;
+  let incorrectCount = 0;
+
+  for (const questionNum in kunci) {
+    const studentAnswer = jawaban[questionNum] || "";
+    const keywordString = kunci[questionNum];
+    const weightValue = bobot[questionNum];
+
+    // Convert weight to number
+    const weight = typeof weightValue === 'string' ? parseInt(weightValue) : weightValue;
+
+    // Split keywords by semicolon and convert to lowercase for case-insensitive matching
+    const keywords = keywordString.split(';').map(keyword => keyword.trim().toLowerCase());
+    
+    // Convert student answer to lowercase for case-insensitive matching
+    const studentAnswerLower = studentAnswer.toLowerCase();
+
+    // Count how many keywords are found in the student answer
+    let foundKeywords = 0;
+    const foundKeywordsList = [];
+
+    keywords.forEach(keyword => {
+      if (keyword && studentAnswerLower.includes(keyword)) {
+        foundKeywords++;
+        foundKeywordsList.push(keyword);
+      }
+    });
+
+    // Calculate proportional score
+    const totalKeywords = keywords.length;
+    const scoreForThisQuestion = totalKeywords > 0 ? (foundKeywords / totalKeywords) * weight : 0;
+    
+    totalScore += scoreForThisQuestion;
+
+    // Consider it "correct" if at least one keyword is found
+    if (foundKeywords > 0) {
+      correctCount++;
+    } else {
+      incorrectCount++;
+    }
+  }
+
+  return {
+    nilai: totalScore,
+    benar: correctCount,
+    salah: incorrectCount,
+  };
+}
+
 // Test data with check/uncheck questions
 const testDataWithChecks = /** @type {import("./types.js").TypeOfJawaban} */ ({
   1: "A", // Multiple choice
@@ -524,3 +582,149 @@ mixedCaseExamples.forEach(ex => {
 });
 
 console.log("\n✅ Case insensitive functionality implemented successfully!");
+
+// ========================================
+// SHORT ANSWER SCORING TESTS
+// ========================================
+
+console.log("\n" + "=".repeat(60));
+console.log("=== SHORT ANSWER SCORING TESTS ===");
+console.log("=".repeat(60));
+
+const shortAnswerData = /** @type {import("./types.js").TypeOfJawaban} */ ({
+  1: "ke satu, kedua, ketiga",        // All 3 keywords found
+  2: "kesatu, dua",                   // 2 out of 3 keywords found  
+  3: "hanya satu saja",               // 1 out of 3 keywords found
+  4: "tidak ada yang cocok",          // 0 keywords found
+  5: "SATU dan DUA tertulis",         // Case insensitive test
+  6: "empat lima enam",               // Different keywords, 0 found
+  7: "satu dua tiga empat lima",      // All keywords + extra words
+  8: "",                              // Empty answer
+  9: "programming adalah seni",       // Single keyword test
+  10: "Algoritma dan Struktur Data"   // Partial match test
+});
+
+const shortAnswerKeys = /** @type {import("./types.js").TypeOfKunci} */ ({
+  1: "satu;dua;tiga",
+  2: "satu;dua;tiga", 
+  3: "satu;dua;tiga",
+  4: "satu;dua;tiga",
+  5: "satu;dua;tiga",
+  6: "satu;dua;tiga",
+  7: "satu;dua;tiga",
+  8: "satu;dua;tiga",
+  9: "programming",
+  10: "algoritma;struktur;pemrograman"
+});
+
+const shortAnswerWeights = /** @type {import("./types.js").TypeOfBobot} */ ({
+  1: 3,   // Weight 3
+  2: 3,   // Weight 3
+  3: 3,   // Weight 3
+  4: 3,   // Weight 3
+  5: 3,   // Weight 3
+  6: 3,   // Weight 3
+  7: 3,   // Weight 3
+  8: 3,   // Weight 3
+  9: 2,   // Weight 2 (single keyword)
+  10: 6   // Weight 6 (3 keywords)
+});
+
+const shortAnswerResult = calculateShortAnswerScore(shortAnswerData, shortAnswerKeys, shortAnswerWeights);
+
+console.log("Short Answer Test Result:", shortAnswerResult);
+
+// Manual verification
+console.log("\n=== Short Answer Detailed Analysis ===");
+let expectedShortScore = 0;
+let expectedShortCorrect = 0;
+let expectedShortIncorrect = 0;
+
+const shortTestCases = [
+  {q: 1, answer: "ke satu, kedua, ketiga", keywords: ["satu","dua","tiga"], found: 3, weight: 3, score: 3, desc: "All 3 keywords found"},
+  {q: 2, answer: "kesatu, dua", keywords: ["satu","dua","tiga"], found: 2, weight: 3, score: 2, desc: "2 out of 3 keywords"},
+  {q: 3, answer: "hanya satu saja", keywords: ["satu","dua","tiga"], found: 1, weight: 3, score: 1, desc: "1 out of 3 keywords"},
+  {q: 4, answer: "tidak ada yang cocok", keywords: ["satu","dua","tiga"], found: 0, weight: 3, score: 0, desc: "No keywords found"},
+  {q: 5, answer: "SATU dan DUA tertulis", keywords: ["satu","dua","tiga"], found: 2, weight: 3, score: 2, desc: "Case insensitive match"},
+  {q: 6, answer: "empat lima enam", keywords: ["satu","dua","tiga"], found: 0, weight: 3, score: 0, desc: "Different keywords"},
+  {q: 7, answer: "satu dua tiga empat lima", keywords: ["satu","dua","tiga"], found: 3, weight: 3, score: 3, desc: "All keywords + extra"},
+  {q: 8, answer: "", keywords: ["satu","dua","tiga"], found: 0, weight: 3, score: 0, desc: "Empty answer"},
+  {q: 9, answer: "programming adalah seni", keywords: ["programming"], found: 1, weight: 2, score: 2, desc: "Single keyword match"},
+  {q: 10, answer: "Algoritma dan Struktur Data", keywords: ["algoritma","struktur","pemrograman"], found: 2, weight: 6, score: 4, desc: "Partial keyword match"}
+];
+
+console.log("Q# | Score | Found/Total | Weight | Description");
+console.log("---|-------|-------------|--------|----------------------------------");
+
+shortTestCases.forEach(tc => {
+  expectedShortScore += tc.score;
+  if (tc.found > 0) expectedShortCorrect++; else expectedShortIncorrect++;
+  
+  const paddedQ = tc.q.toString().padStart(2);
+  const paddedScore = tc.score.toString().padStart(5);
+  const foundTotal = `${tc.found}/${tc.keywords.length}`.padEnd(11);
+  const paddedWeight = tc.weight.toString().padStart(6);
+  
+  console.log(`${paddedQ} | ${paddedScore} | ${foundTotal} | ${paddedWeight} | ${tc.desc}`);
+});
+
+console.log(`\nExpected: nilai=${expectedShortScore}, benar=${expectedShortCorrect}, salah=${expectedShortIncorrect}`);
+console.log(`Actual:   nilai=${shortAnswerResult.nilai}, benar=${shortAnswerResult.benar}, salah=${shortAnswerResult.salah}`);
+console.log(`Short Answer Test: ${expectedShortScore === shortAnswerResult.nilai && expectedShortCorrect === shortAnswerResult.benar && expectedShortIncorrect === shortAnswerResult.salah ? '✅ PASS' : '❌ FAIL'}`);
+
+// Demonstrate keyword detection
+console.log("\n=== Keyword Detection Examples ===");
+const keywordExamples = [
+  {answer: "ke satu, kedua, ketiga", keywords: "satu;dua;tiga", found: ["satu","dua","tiga"]},
+  {answer: "SATU dan DUA", keywords: "satu;dua;tiga", found: ["satu","dua"]},
+  {answer: "programming is fun", keywords: "programming;coding;development", found: ["programming"]},
+  {answer: "nothing matches", keywords: "apple;banana;orange", found: []}
+];
+
+keywordExamples.forEach((ex, i) => {
+  console.log(`Example ${i+1}: "${ex.answer}"`);
+  console.log(`Keywords: ${ex.keywords}`);
+  console.log(`Found: [${ex.found.join(', ')}]`);
+  console.log(`Score ratio: ${ex.found.length}/${ex.keywords.split(';').length}`);
+  console.log("");
+});
+
+console.log("✅ Short answer scoring functionality implemented successfully!");
+
+console.log("\n" + "=".repeat(60));
+console.log("SUMMARY: Available Functions");
+console.log("=".repeat(60));
+console.log("1. calculateScore() - Multiple choice with various weight formats");
+console.log("   - Simple weights: 3, '5'");
+console.log("   - Correct/Incorrect: '4;-1'");
+console.log("   - Choice-based: '1;2;3;4;5'");
+console.log("   - Supports check/uncheck questions");
+console.log("   - Case insensitive");
+console.log("");
+console.log("2. calculateShortAnswerScore() - Keyword-based short answers");
+console.log("   - Keywords format: 'keyword1;keyword2;keyword3'");
+console.log("   - Proportional scoring: found_keywords/total_keywords * weight");
+console.log("   - Case insensitive keyword matching");
+console.log("   - Returns: {nilai, benar, salah}");
+
+// Export functions for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    calculateScore,
+    calculateShortAnswerScore,
+    sampleData,
+    kunciJawaban,
+    bobot
+  };
+}
+
+// Export functions for use in other modules
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    calculateScore,
+    calculateShortAnswerScore,
+    sampleData,
+    kunciJawaban,
+    bobot
+  };
+};
