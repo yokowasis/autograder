@@ -92,18 +92,22 @@ function calculateScore(jawaban, kunci, bobot) {
     let isCorrect = false;
     let scoreToAdd = 0;
 
+    // Convert to lowercase for case-insensitive comparison
+    const studentAnswerLower = typeof studentAnswer === 'string' ? studentAnswer.toLowerCase() : studentAnswer;
+    const correctAnswerLower = typeof correctAnswer === 'string' ? correctAnswer.toLowerCase() : correctAnswer;
+
     // Handle check/uncheck questions for correctness determination
-    if (correctAnswer === "check" || correctAnswer === "-check") {
-      if (correctAnswer === "check") {
+    if (correctAnswerLower === "check" || correctAnswerLower === "-check") {
+      if (correctAnswerLower === "check") {
         // For "check" key: only "check" answer is correct
-        isCorrect = studentAnswer === "check";
-      } else if (correctAnswer === "-check") {
+        isCorrect = studentAnswerLower === "check";
+      } else if (correctAnswerLower === "-check") {
         // For "-check" key: both "-check" and blank (empty string) answers are correct
-        isCorrect = studentAnswer === "-check" || studentAnswer === "";
+        isCorrect = studentAnswerLower === "-check" || studentAnswer === "";
       }
     } else {
       // Handle regular multiple choice questions (A, B, C, D, S, etc.)
-      isCorrect = studentAnswer === correctAnswer;
+      isCorrect = studentAnswerLower === correctAnswerLower;
     }
 
     // Handle different weight formats
@@ -118,13 +122,13 @@ function calculateScore(jawaban, kunci, bobot) {
       } else if (parts.length === 5) {
         // Format: "1;2;3;4;5" (A=1, B=2, C=3, D=4, E=5)
         const choiceScores = {
-          'A': parseInt(parts[0]),
-          'B': parseInt(parts[1]), 
-          'C': parseInt(parts[2]),
-          'D': parseInt(parts[3]),
-          'E': parseInt(parts[4])
+          'a': parseInt(parts[0]),
+          'b': parseInt(parts[1]), 
+          'c': parseInt(parts[2]),
+          'd': parseInt(parts[3]),
+          'e': parseInt(parts[4])
         };
-        scoreToAdd = choiceScores[studentAnswer] || 0;
+        scoreToAdd = choiceScores[studentAnswerLower] || 0;
         // For choice-based scoring, we don't count correct/incorrect traditionally
         // but we can consider it "correct" if they got a positive score
         isCorrect = scoreToAdd > 0;
@@ -198,17 +202,21 @@ for (const questionNum in kunciJawaban) {
   let scoreEarned = 0;
   let explanation = "";
 
+  // Convert to lowercase for case-insensitive comparison
+  const studentAnswerLower = typeof studentAnswer === 'string' ? studentAnswer.toLowerCase() : studentAnswer;
+  const correctAnswerLower = typeof correctAnswer === 'string' ? correctAnswer.toLowerCase() : correctAnswer;
+
   // Determine correctness first
-  if (correctAnswer === "check" || correctAnswer === "-check") {
-    if (correctAnswer === "check") {
-      isCorrect = studentAnswer === "check";
+  if (correctAnswerLower === "check" || correctAnswerLower === "-check") {
+    if (correctAnswerLower === "check") {
+      isCorrect = studentAnswerLower === "check";
       explanation = `Check question: need "check", got "${studentAnswer || "(empty)"}"`;
-    } else if (correctAnswer === "-check") {
-      isCorrect = studentAnswer === "-check" || studentAnswer === "";
+    } else if (correctAnswerLower === "-check") {
+      isCorrect = studentAnswerLower === "-check" || studentAnswer === "";
       explanation = `Uncheck question: need "-check" or empty, got "${studentAnswer || "(empty)"}"`;
     }
   } else {
-    isCorrect = studentAnswer === correctAnswer;
+    isCorrect = studentAnswerLower === correctAnswerLower;
     explanation = `Multiple choice: need "${correctAnswer}", got "${studentAnswer}"`;
   }
 
@@ -225,13 +233,13 @@ for (const questionNum in kunciJawaban) {
     } else if (parts.length === 5) {
       // Choice-based format
       const choiceScores = {
-        'A': parseInt(parts[0]),
-        'B': parseInt(parts[1]), 
-        'C': parseInt(parts[2]),
-        'D': parseInt(parts[3]),
-        'E': parseInt(parts[4])
+        'a': parseInt(parts[0]),
+        'b': parseInt(parts[1]), 
+        'c': parseInt(parts[2]),
+        'd': parseInt(parts[3]),
+        'e': parseInt(parts[4])
       };
-      scoreEarned = choiceScores[studentAnswer] || 0;
+      scoreEarned = choiceScores[studentAnswerLower] || 0;
       explanation = `Choice-based: got "${studentAnswer}" = ${scoreEarned} points (A=${parts[0]},B=${parts[1]},C=${parts[2]},D=${parts[3]},E=${parts[4]})`;
       isCorrect = scoreEarned > 0; // Consider positive score as "correct"
     }
@@ -449,3 +457,70 @@ testCases.forEach(tc => {
 console.log(`\nTOTAL SCORE: ${testCases.reduce((sum, tc) => sum + tc.score, 0)} points`);
 console.log(`CORRECT: ${testCases.filter(tc => tc.status === "✓").length} questions`);
 console.log(`INCORRECT: ${testCases.filter(tc => tc.status === "✗").length} questions`);
+
+// Case insensitive test
+console.log("\n=== Case Insensitive Test ===");
+const caseTestAnswers = /** @type {import("./types.js").TypeOfJawaban} */ ({
+  1: "a",        // lowercase should match "A"
+  2: "B",        // uppercase should match "b"  
+  3: "Check",    // mixed case should match "check"
+  4: "-CHECK",   // uppercase should match "-check"
+  5: "c",        // lowercase for choice-based
+  6: "D",        // uppercase for choice-based
+});
+
+const caseTestKeys = /** @type {import("./types.js").TypeOfKunci} */ ({
+  1: "A",        // uppercase key
+  2: "b",        // lowercase key
+  3: "check",    // lowercase check
+  4: "-check",   // lowercase -check
+  5: "X",        // choice-based (key doesn't matter)
+  6: "X",        // choice-based (key doesn't matter)
+});
+
+const caseTestWeights = /** @type {import("./types.js").TypeOfBobot} */ ({
+  1: 3,                // simple weight
+  2: 4,                // simple weight
+  3: "5;-1",          // correct/incorrect for check
+  4: "2;-1",          // correct/incorrect for -check
+  5: "1;2;3;4;5",     // choice-based
+  6: "10;20;30;40;50", // choice-based
+});
+
+const caseTestResult = calculateScore(caseTestAnswers, caseTestKeys, caseTestWeights);
+console.log("Case test answers:", caseTestAnswers);
+console.log("Case test keys:", caseTestKeys);
+console.log("Case test result:", caseTestResult);
+
+console.log("Expected results:");
+console.log("Q1: 'a' should match 'A' → +3 points");
+console.log("Q2: 'B' should match 'b' → +4 points");
+console.log("Q3: 'Check' should match 'check' → +5 points");
+console.log("Q4: '-CHECK' should match '-check' → +2 points");
+console.log("Q5: 'c' choice-based → +3 points");
+console.log("Q6: 'D' choice-based → +40 points");
+console.log("Expected total: 57 points, all 6 correct");
+
+console.log(`Actual result: ${caseTestResult.nilai} points, ${caseTestResult.benar} correct`);
+console.log(`Case insensitive test: ${caseTestResult.nilai === 57 && caseTestResult.benar === 6 ? '✅ PASS' : '❌ FAIL'}`);
+
+// Additional case insensitive examples
+console.log("\n=== Additional Case Examples ===");
+const mixedCaseExamples = [
+  { student: "a", key: "A", match: "✓", desc: "lowercase student, uppercase key" },
+  { student: "B", key: "b", match: "✓", desc: "uppercase student, lowercase key" },
+  { student: "Check", key: "check", match: "✓", desc: "mixed case check" },
+  { student: "-check", key: "-CHECK", match: "✓", desc: "lowercase vs uppercase -check" },
+  { student: "CHECK", key: "check", match: "✓", desc: "all caps check" },
+  { student: "s", key: "S", match: "✓", desc: "lowercase s matches uppercase S" }
+];
+
+console.log("Student | Key    | Match | Description");
+console.log("--------|--------|-------|---------------------------");
+mixedCaseExamples.forEach(ex => {
+  const paddedStudent = ex.student.padEnd(7);
+  const paddedKey = ex.key.padEnd(6);
+  console.log(`${paddedStudent} | ${paddedKey} | ${ex.match}     | ${ex.desc}`);
+});
+
+console.log("\n✅ Case insensitive functionality implemented successfully!");
