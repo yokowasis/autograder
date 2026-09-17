@@ -45,6 +45,13 @@ test("Pilihan Ganda Benar Semua", () => {
     nilai: "10.00",
     benar: "5.00",
     salah: "0.00",
+    detail: {
+      "1": "correct",
+      "2": "correct",
+      "3": "correct",
+      "4": "correct",
+      "5": "correct",
+    },
   });
 });
 
@@ -77,6 +84,13 @@ test("Pilihan Benar Sebagian", () => {
     nilai: "6.00",
     benar: "3.00",
     salah: "2.00",
+    detail: {
+      "1": "correct",
+      "2": "correct",
+      "3": "correct",
+      "4": "wrong",
+      "5": "wrong",
+    },
   });
 });
 
@@ -109,6 +123,13 @@ test("Pilihan Ganda Kompleks Benar Semua", () => {
     nilai: "10.00",
     benar: "5.00",
     salah: "0.00",
+    detail: {
+      "1": "correct",
+      "2": "correct",
+      "3": "correct",
+      "4": "correct",
+      "5": "correct",
+    },
   });
 });
 
@@ -141,6 +162,13 @@ test("Pilihan Ganda Kompleks Benar Sebagian", () => {
     nilai: "6.00",
     benar: "3.00",
     salah: "2.00",
+    detail: {
+      "1": "correct",
+      "2": "wrong",
+      "3": "correct",
+      "4": "wrong",
+      "5": "correct",
+    },
   });
 });
 
@@ -173,6 +201,12 @@ test("Pilihan Ganda Benar +4, Salah -1, Kosong +0", () => {
     nilai: "11.00",
     benar: "3.00",
     salah: "1.00",
+    detail: {
+      "1": "correct",
+      "2": "correct",
+      "3": "correct",
+      "5": "wrong",
+    },
   });
 });
 
@@ -412,5 +446,171 @@ test("Soal AKM Campuran", () => {
     nilai: "100.00",
     benar: "74.00",
     salah: "0.00",
+    detail: {
+      "1": "correct",
+      "2": "correct",
+      "3": "correct",
+      "4": "correct",
+      "5": "correct",
+      "6": "correct",
+      "7": "correct",
+      "8": "correct",
+      "9": "correct",
+      "10": "correct",
+      "11": "correct",
+      "12": "correct",
+      "13": "correct",
+      "14": "correct",
+      "15": "correct",
+      "16": "correct",
+      "17": "correct",
+      "18": "correct",
+      "19": "correct",
+      "20": "correct",
+      "21": "correct",
+      "22": "correct",
+      "23": "correct",
+      "24": "correct",
+      "25": "correct",
+      "11001": "correct",
+      "11002": "correct",
+      "11003": "correct",
+      "11004": "correct",
+      "12001": "correct",
+      "12002": "correct",
+      "12003": "correct",
+      "12004": "correct",
+      "13001": "correct",
+      "13002": "correct",
+      "13003": "correct",
+      "13004": "correct",
+      "14001": "correct",
+      "14002": "correct",
+      "14003": "correct",
+      "14004": "correct",
+      "15001": "correct",
+      "15002": "correct",
+      "15003": "correct",
+      "15004": "correct",
+      "16001": "correct",
+      "16002": "correct",
+      "16003": "correct",
+      "16004": "correct",
+      "16005": "correct",
+      "17001": "correct",
+      "17002": "correct",
+      "17003": "correct",
+      "17004": "correct",
+      "17005": "correct",
+      "18001": "correct",
+      "18002": "correct",
+      "18003": "correct",
+      "18004": "correct",
+      "18005": "correct",
+      "19001": "correct",
+      "19002": "correct",
+      "19003": "correct",
+      "19004": "correct",
+      "20001": "correct",
+      "20002": "correct",
+      "20003": "correct",
+      "20004": "correct",
+      "20005": "correct",
+      "21001": "correct",
+      "22001": "correct",
+      "23001": "correct",
+      "24001": "correct",
+      "25001": "correct",
+    },
   });
 });
+
+test("Uraian / Short Answer dengan status correct, wrong, dan partial", () => {
+  expect(
+    hitungnilai(
+      {
+        "1": "fotosintesis klorofil matahari",
+        "2": "fotosintesis",
+        "3": "oksigen karbon",
+      },
+      {
+        "1": "fotosintesis,klorofil,matahari",
+        "2": "fotosintesis,klorofil,matahari",
+        "3": "fotosintesis,klorofil,matahari",
+      },
+      {
+        "1": 3,
+        "2": 3,
+        "3": 3,
+      }
+    )
+  ).toStrictEqual({
+    nilai: "4.00",
+    benar: "1.33",
+    salah: "1.67",
+    detail: {
+      "1": "correct",
+      "2": "partial",
+      "3": "wrong",
+    },
+  });
+});
+
+test("Uraian AI Score [AISCORE:XX] dengan status correct, partial, dan wrong", () => {
+  expect(
+    hitungnilai(
+      {
+        "1": "jawaban sempurna",
+        "2": "jawaban separuh",
+        "3": "jawaban salah",
+      },
+      {
+        "1": "[AISCORE:100]",
+        "2": "[AISCORE:50]",
+        "3": "[AISCORE:0]",
+      },
+      {
+        "1": 10,
+        "2": 10,
+        "3": 10,
+      }
+    )
+  ).toStrictEqual({
+    nilai: "15.00",
+    benar: "1.50",
+    salah: "1.50",
+    detail: {
+      "1": "correct",
+      "2": "partial",
+      "3": "wrong",
+    },
+  });
+});
+
+test("Soal Bonus dengan status correct", () => {
+  expect(
+    hitungnilai(
+      {
+        "1": "apa saja",
+        "2": "sembarang",
+      },
+      {
+        "1": "x",
+        "2": "-check",
+      },
+      {
+        "1": 2,
+        "2": 2,
+      }
+    )
+  ).toStrictEqual({
+    nilai: "4.00",
+    benar: "2.00",
+    salah: "0.00",
+    detail: {
+      "1": "correct",
+      "2": "correct",
+    },
+  });
+});
+

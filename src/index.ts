@@ -12,6 +12,12 @@ export type TypeOfBobot = {
   [no: number]: number | string;
 };
 
+export type StatusDetail = "correct" | "wrong" | "partial";
+
+export type TypeOfDetail = {
+  [no: number]: StatusDetail;
+};
+
 function hitungnilai(
   jawaban: TypeOfJawaban,
   kunci: TypeOfKunci,
@@ -20,6 +26,7 @@ function hitungnilai(
   let benar = 0;
   let salah = 0;
   let skor = 0;
+  let detail: TypeOfDetail = {};
 
   if (jawaban && kunci && bobot) {
     for (const no in kunci) {
@@ -58,6 +65,7 @@ function hitungnilai(
           if (bonus) {
             benar++;
             skor += bobotBenar;
+            detail[no] = "correct";
             d = 1;
             continue;
           }
@@ -67,14 +75,17 @@ function hitungnilai(
             if (kuncijawaban === "-check" && jawabansoal !== "check") {
               benar++;
               skor += bobotBenar;
+              detail[no] = "correct";
               d = 1;
             } else if (kuncijawaban === jawabansoal) {
               benar++;
               skor += bobotBenar;
+              detail[no] = "correct";
               d = 2;
             } else {
               salah++;
               skor += bobotSalah;
+              detail[no] = "wrong";
               d = 3;
             }
 
@@ -86,10 +97,12 @@ function hitungnilai(
             if (kuncijawaban === jawabansoal) {
               benar++;
               skor += bobotBenar;
+              detail[no] = "correct";
               d = 2;
             } else {
               salah++;
               skor += bobotSalah;
+              detail[no] = "wrong";
               d = 3;
             }
             continue;
@@ -99,6 +112,7 @@ function hitungnilai(
           if (kunciAsNumber !== 0 && kunciAsNumber === jawabanAsNumber) {
             benar++;
             skor += bobotBenar;
+            detail[no] = "correct";
             d = 4;
             continue;
           }
@@ -108,6 +122,13 @@ function hitungnilai(
           benar += essayScore;
           skor += essayScore * bobotBenar;
           salah += 1 - essayScore;
+          if (essayScore >= 1) {
+            detail[no] = "correct";
+          } else if (essayScore <= 0) {
+            detail[no] = "wrong";
+          } else {
+            detail[no] = "partial";
+          }
           d = 6;
         }
       }
@@ -118,6 +139,7 @@ function hitungnilai(
     nilai: skor?.toFixed(2) || "0",
     benar: benar?.toFixed(2) || "0",
     salah: salah?.toFixed(2) || "0",
+    detail,
   };
 }
 

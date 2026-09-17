@@ -9,6 +9,7 @@ function hitungnilai(jawaban, kunci, bobot) {
     let benar = 0;
     let salah = 0;
     let skor = 0;
+    let detail = {};
     if (jawaban && kunci && bobot) {
         for (const no in kunci) {
             if (Object.hasOwnProperty.call(kunci, no)) {
@@ -32,6 +33,7 @@ function hitungnilai(jawaban, kunci, bobot) {
                     if (bonus) {
                         benar++;
                         skor += bobotBenar;
+                        detail[no] = "correct";
                         d = 1;
                         continue;
                     }
@@ -40,16 +42,19 @@ function hitungnilai(jawaban, kunci, bobot) {
                         if (kuncijawaban === "-check" && jawabansoal !== "check") {
                             benar++;
                             skor += bobotBenar;
+                            detail[no] = "correct";
                             d = 1;
                         }
                         else if (kuncijawaban === jawabansoal) {
                             benar++;
                             skor += bobotBenar;
+                            detail[no] = "correct";
                             d = 2;
                         }
                         else {
                             salah++;
                             skor += bobotSalah;
+                            detail[no] = "wrong";
                             d = 3;
                         }
                         continue;
@@ -59,11 +64,13 @@ function hitungnilai(jawaban, kunci, bobot) {
                         if (kuncijawaban === jawabansoal) {
                             benar++;
                             skor += bobotBenar;
+                            detail[no] = "correct";
                             d = 2;
                         }
                         else {
                             salah++;
                             skor += bobotSalah;
+                            detail[no] = "wrong";
                             d = 3;
                         }
                         continue;
@@ -72,6 +79,7 @@ function hitungnilai(jawaban, kunci, bobot) {
                     if (kunciAsNumber !== 0 && kunciAsNumber === jawabanAsNumber) {
                         benar++;
                         skor += bobotBenar;
+                        detail[no] = "correct";
                         d = 4;
                         continue;
                     }
@@ -80,6 +88,15 @@ function hitungnilai(jawaban, kunci, bobot) {
                     benar += essayScore;
                     skor += essayScore * bobotBenar;
                     salah += 1 - essayScore;
+                    if (essayScore >= 1) {
+                        detail[no] = "correct";
+                    }
+                    else if (essayScore <= 0) {
+                        detail[no] = "wrong";
+                    }
+                    else {
+                        detail[no] = "partial";
+                    }
                     d = 6;
                 }
             }
@@ -89,6 +106,7 @@ function hitungnilai(jawaban, kunci, bobot) {
         nilai: (skor === null || skor === void 0 ? void 0 : skor.toFixed(2)) || "0",
         benar: (benar === null || benar === void 0 ? void 0 : benar.toFixed(2)) || "0",
         salah: (salah === null || salah === void 0 ? void 0 : salah.toFixed(2)) || "0",
+        detail,
     };
 }
 exports.hitungnilai = hitungnilai;

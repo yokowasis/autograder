@@ -14,9 +14,10 @@ function extractNumber(str) {
 exports.extractNumber = extractNumber;
 function calculateScore(keywords, answer) {
     // check if keywords has [AISCORE
-    if (keywords.indexOf("[AISCORE:") !== -1) {
+    const upperKeywords = keywords.toUpperCase();
+    if (upperKeywords.indexOf("[AISCORE:") !== -1) {
         // extract XX from [AISCORE:XX] using regex
-        const regex = /\[AISCORE:(\d+)\]/;
+        const regex = /\[AISCORE:(\d+)\]/i;
         const match = keywords.match(regex);
         let score = 0;
         if (match !== null) {
